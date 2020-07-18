@@ -6,7 +6,7 @@
 
 My name is **Timothy Cole 🦄**. I'm a 23 year old, self-taught, software engineer currently living in Vancouver, BC.
 
-I prefer to write **back-end** code, but a can do front-end as needed.  
+I prefer to write **back-end** code, but can do front-end as needed.  
 **Vim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
 
 Full-time Sr Software Engineer at **[Notify Technology, Inc.](https://notify.me)**; Free-time Developer at **[Social Blade LLC](https://socialblade.com)**.
