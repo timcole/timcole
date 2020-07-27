@@ -1,4 +1,4 @@
-[![Timothy Cole](https://github.com/TimothyCole/TimothyCole/raw/main/banner.png)](https://timcole.me)
+[![Timothy Cole](https://github.com/timcole/timcole/raw/main/banner.png)](https://timcole.me)
 
 [![Twitter Follow](https://img.shields.io/badge/dynamic/json.svg?color=1DA1F2&labelColor=1A90D9&logo=twitter&logoColor=ffffff&label=&query=%24.results[2].followers&url=https%3A%2F%2Ftimcole.me%2Fapi%2Fstats&suffix=%20Followers)](https://twitter.com/modesttim)
 [![Discord](https://img.shields.io/discord/313591755180081153.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://modest.land/discord)
