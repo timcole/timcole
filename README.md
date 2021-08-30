@@ -15,3 +15,10 @@ I have a pet ball python named [Mila 🐍](https://timcole.me/mila) but I don't 
 🚀 Massive [space nerd](https://spaceflight.live), my schedule revolves around what's happening in space.  
 📈 Full-time Engineer at **[Social Blade LLC](https://socialblade.com)**.  
 💜 Volunteer Admin for the **[TwitchDev](https://dev.twitch.tv)** Community.  
+
+---
+
+#### Hosted projects/tools
+- **Request** TikTok Scraping API, [tiktok.tim.rip](https://tiktok.tim.rip) ≈64.6M reqs /mo
+- **Free** YouTube banners made easy, [banner.yt](https://banner.yt) ≈16.2M reqs /mo
+- **Free** YouTube animated thumbnails, [thumb.yt](https://thumb.yt) ≈154.3K reqs /mo
