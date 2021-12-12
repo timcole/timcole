@@ -8,10 +8,11 @@
 My name is **Timothy Cole 🦄**. I'm a 24 year old, self-taught, software engineer currently living in North Carolina, USA.
 
 I prefer to write **back-end** code _(Rust, TypeScript)_, but can do front-end as needed _(React/NextJS TypeScript)_.  
-**Vim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
+**NeoVim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
 
-I have a pet ball python named [Mila 🐍](https://timcole.me/mila) but I don't program in python.
+I have a pet ball python named [Mila 🐍](https://www.instagram.com/stories/highlights/17920168666864385/) but I don't program in python.
 
+🎥 Bring your TikTok to life with your Discord community, [FreshTok](https://freshtok.bot/) notifications.  
 🚀 Massive [space nerd](https://spaceflight.live), my schedule revolves around what's happening in space.  
 📈 Full-time Engineer at **[Social Blade LLC](https://socialblade.com)**.  
 💜 Volunteer Admin for the **[TwitchDev](https://dev.twitch.tv)** Community.  
@@ -21,4 +22,3 @@ I have a pet ball python named [Mila 🐍](https://timcole.me/mila) but I don't 
 #### Hosted projects/tools
 - **Request** TikTok Scraping API, [tiktok.tim.rip](https://tiktok.tim.rip) ≈64.6M reqs /mo
 - **Free** YouTube banners made easy, [banner.yt](https://banner.yt) ≈16.2M reqs /mo
-- **Free** YouTube animated thumbnails, [thumb.yt](https://thumb.yt) ≈154.3K reqs /mo
