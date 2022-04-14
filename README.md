@@ -5,7 +5,7 @@
 [![YouTube Subscribe](https://img.shields.io/badge/dynamic/json.svg?color=ff0000&labelColor=ff0000&logo=youtube&logoColor=ffffff&label=&query=%24.results[3].subscribers&url=https%3A%2F%2Ftimcole.me%2Fapi%2Fstats&suffix=%20Subscribers)](https://youtube.com/eattim)
 [![Twitch Follow](https://img.shields.io/badge/dynamic/json.svg?color=6441A4&labelColor=6441A4&logo=twitch&logoColor=ffffff&label=&query=%24.results[1].followers&url=https%3A%2F%2Ftimcole.me%2Fapi%2Fstats&suffix=%20Followers)](https://www.twitch.tv/modesttim)
 
-My name is **Timothy Cole 🦄**. I'm a 24 year old, self-taught, software engineer currently living in North Carolina, USA.
+My name is **Timothy Cole 🦄**. I'm a 25 year old, self-taught, software engineer currently living in North Carolina, USA.
 
 I prefer to write **back-end** code _(Rust, TypeScript)_, but can do front-end as needed _(React/NextJS TypeScript)_.  
 **NeoVim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
