@@ -22,7 +22,7 @@ _Oct 2021 - Present_ -
 
 > _Modest Labs operates AS992 for all network inquires please use the contact email listed on whois._
 
-**Social Blade LLC** (Sr Software Engineer)  
+**Social Blade LLC** (Engineering Lead)  
 _Mar 2016 - Present_ -
 [✉️](mailto:tim@socialblade.com)
 [🔗](https://socialblade.com)
