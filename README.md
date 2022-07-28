@@ -27,6 +27,6 @@ _Mar 2016 - Present_ -
 [✉️](mailto:tim@socialblade.com)
 [🔗](https://socialblade.com)
 
-> Currently leading the transition of our very legacy PHP, MySQL, Redis infrastructure to our new upcoming Rust, tRPC, PostgreSQL, Cassandra, Redis, NextJS infrastructure. Our transition goal is to provide a more user-friendly and stable service so everyone can continue to enjoy the stats they love without interruption.
+> Leading our engineering team working on building out our new tech stack and Kubernetes infrastructure. Making and implementing technical decisions, writing code and delegating tasks to others.
 
 _[Past Experiences](https://www.linkedin.com/in/modesttim)_
