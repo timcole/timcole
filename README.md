@@ -8,7 +8,7 @@ A 25 year old, self-taught, software engineer from Raleigh, NC.
 I prefer to write **back-end** code _(Rust, TypeScript, Go)_, but do front-end as needed _(React/NextJS TypeScript)_.  
 **NeoVim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
 
-_I have a pet ball python named [Mila 🐍](https://www.instagram.com/stories/highlights/17920168666864385/) but I don't program in python._
+_I have two pet ball pythons named [Mila and Oleg 🐍](https://tim.rip/snakes) but I don't program in python._
 
 ---
 
