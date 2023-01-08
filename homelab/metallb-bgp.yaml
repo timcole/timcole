@@ -1,0 +1,29 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.69.4.128/25
+---
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: gateway
+  namespace: metallb-system
+spec:
+  myASN: 64500
+  peerASN: 65530
+  peerAddress: 10.69.0.1
+---
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: external
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - default
+  peers:
+    - gateway

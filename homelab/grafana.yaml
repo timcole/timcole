@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: default
+data:
+  grafana.ini: |
+    [feature_toggles]
+    enable = true
+    promQueryBuilder = true
+    lokiQueryBuilder = true
+    explore2Dashboard = true
+    commandPalette = true
+    cloudWatchDynamicLabels = false
+    newNavigation = true
+    publicDashboards = true
+
+    [unified_alerting]
+    enabled = true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      initContainers:
+        - name: grafana-dir-ownership
+          image: alpine:3
+          command:
+            - chown
+            - -R
+            - 472:472
+            - /var/lib/grafana
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: "/var/lib/grafana"
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          securityContext:
+            runAsUser: 472
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_INSTALL_PLUGINS
+              value: "grafana-piechart-panel,grafana-clock-panel,marcusolsson-json-datasource,redis-datasource"
+            - name: GF_SERVER_ROOT_URL
+              value: "https://grafana.local.tim.rip"
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: grafana-config
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+            - mountPath: /var/lib/grafana
+              name: grafana-storage
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+        - name: grafana-config
+          configMap:
+            name: grafana-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: grafana
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`grafana.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: grafana
+          namespace: default
+          port: 3000
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

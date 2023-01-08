@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-controller
+  namespace: default
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik
+  namespace: default
+  labels:
+    app: traefik
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/vjznrfwddrmpcomvd32m2q4hkm"
+    operator.1password.io/item-name: "cloudflare-api"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "8082"
+        prometheus.io/scrape: "true"
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-controller
+      initContainers:
+        - name: set-acme-permissions
+          image: alpine:3
+          command: ["sh", "-c", "chmod -Rv 600 /etc/traefik/acme"]
+          volumeMounts:
+            - name: acme-storage
+              mountPath: /etc/traefik/acme
+      containers:
+        - name: traefik
+          image: traefik
+          envFrom:
+            - secretRef:
+                name: cloudflare-api
+          volumeMounts:
+            - mountPath: /etc/traefik
+              name: traefik-conf
+            - name: acme-storage
+              mountPath: /etc/traefik/acme
+          resources:
+            requests:
+              cpu: 10m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8083
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          ports:
+            - name: https
+              containerPort: 443
+            - name: metrics
+              containerPort: 8082
+            - name: ping
+              containerPort: 8083
+      volumes:
+        - name: traefik-conf
+          configMap:
+            name: traefik-conf
+        - name: acme-storage
+          persistentVolumeClaim:
+            claimName: traefik-pvc
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: compression
+  namespace: default
+spec:
+  compress: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: traefik-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 25Mi

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mikrotik
+  namespace: default
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/jut2u5bh7hywhfvmpfc74c7mau"
+    operator.1password.io/item-name: "mikrotik"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mikrotik
+  template:
+    metadata:
+      name: mikrotik
+      annotations:
+        prometheus.io/port: "9436"
+        prometheus.io/scrape: "true"
+      labels:
+        app: mikrotik
+    spec:
+      containers:
+        - name: mikrotik
+          image: nshttpd/mikrotik-exporter:1.0.12-DEVEL
+          env:
+            - name: CONFIG_FILE
+              value: /app/config.yml
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - mountPath: /app/config.yml
+              subPath: config.yml
+              name: mikrotik-conf
+          resources:
+            requests:
+              cpu: 200m
+              memory: 500Mi
+      volumes:
+        - name: mikrotik-conf
+          secret:
+            secretName: mikrotik

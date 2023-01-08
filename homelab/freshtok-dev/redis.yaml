@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: freshtok-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 6379
+          command: ["redis-server"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: freshtok-dev
+  labels:
+    app: redis
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.69.4.133
+  ports:
+    - port: 6379
+  selector:
+    app: redis

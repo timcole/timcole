@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timcole-me
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timcole-me
+  template:
+    metadata:
+      labels:
+        app: timcole-me
+    spec:
+      imagePullSecrets:
+        - name: ghcr
+      containers:
+        - name: timcole-me
+          image: ghcr.io/timcole/timcole.me:35d6b002128dc546169ab3c7891478d41366d6bf
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "150m"
+          env:
+            - name: BOOSTER_HOST
+              value: https://booster.spaceflight.live
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timcole-me
+  namespace: default
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: timcole-me
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: timcole-me
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`timcole.me`)
+      kind: Rule
+      services:
+        - name: timcole-me
+          namespace: default
+          port: 3000
+  tls:
+    certResolver: cloudflare

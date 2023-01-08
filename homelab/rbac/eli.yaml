@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eli-sa
+  namespace: kube-system
+secrets:
+  - name: eli-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eli-secret
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: eli-sa
+type: kubernetes.io/service-account-token

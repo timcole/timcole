@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipmi
+  namespace: default
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/gfgxx7ufulkho5uc2gtfxgi5ma"
+    operator.1password.io/item-name: "ipmi"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipmi
+  template:
+    metadata:
+      name: ipmi
+      annotations:
+      labels:
+        app: ipmi
+    spec:
+      imagePullSecrets:
+        - name: ghcr
+      containers:
+        - name: ipmi
+          image: ghcr.io/timcole/ipmi-exporter:latest
+          command: ['/bin/ipmi_exporter', '--config.file', '/app/config.yml']
+          env:
+            - name: CONFIG_FILE
+              value: /app/config.yml
+          ports:
+            - containerPort: 9290
+          volumeMounts:
+            - mountPath: /app/config.yml
+              subPath: config.yml
+              name: ipmi-conf
+          resources:
+            requests:
+              cpu: 200m
+              memory: 500Mi
+      volumes:
+        - name: ipmi-conf
+          secret:
+            secretName: ipmi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipmi
+  namespace: default
+spec:
+  selector:
+    app: ipmi
+  ports:
+    - protocol: TCP
+      port: 9290
+      name: http
+      targetPort: 9290

@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wyze
+  namespace: default
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/hswnkinhmpxhsphbdzw2dgpxda"
+    operator.1password.io/item-name: "wyze"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wyze
+  template:
+    metadata:
+      labels:
+        app: wyze
+    spec:
+      hostNetwork: true
+      containers:
+        - name: wyze
+          image: ghcr.io/mrlt8/docker-wyze-bridge:1.10.1
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+          envFrom:
+            - secretRef:
+                name: wyze
+          env:
+            - name: WYZE_EMAIL
+              value: $(username)
+            - name: WYZE_PASSWORD
+              value: $(password)
+            - name: TZ
+              value: America/New_York
+            - name: FRESH_DATA
+              value: "true"
+            - name: QUALITY
+              value: HD120
+            - name: FPS_FIX
+              value: "true"
+            - name: FILTER_NAME
+              value: Mila,Oleg
+            - name: NET_MODE
+              value: LAN
+          ports:
+            - containerPort: 1935
+              name: rtmp
+            - containerPort: 8554
+              name: rtsp
+            - containerPort: 8888
+              name: hls
+            - containerPort: 5000
+              name: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wyze
+  namespace: default
+spec:
+  selector:
+    app: wyze
+  type: LoadBalancer
+  loadBalancerIP: 10.69.4.129
+  ports:
+    - targetPort: rtmp
+      port: 1935
+      name: rtmp
+    - targetPort: rtsp
+      port: 8554
+      name: rtsp
+    - targetPort: hls
+      port: 8888
+      name: hls
+    - targetPort: api
+      port: 5000
+      name: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: govee
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: govee
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 10.69.0.4
+    ports:
+      - port: 3000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: snakes
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`snakes.tim.rip`) && !Path(`/metrics`)
+      kind: Rule
+      services:
+        - name: wyze
+          port: 8888
+    - match: Host(`snakes.tim.rip`) && Path(`/metrics`)
+      kind: Rule
+      services:
+        - name: govee
+          port: 3000
+  tls:
+    certResolver: cloudflare
+

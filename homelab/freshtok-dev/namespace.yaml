@@ -1,0 +1,6 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: freshtok-dev
+  labels:
+    name: freshtok-dev

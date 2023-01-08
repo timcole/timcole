@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: default
+spec:
+  selector:
+    app: traefik
+  ports:
+    - protocol: TCP
+      port: 8082
+      name: metrics
+      targetPort: 8082
+    - protocol: TCP
+      port: 8083
+      name: ping
+      targetPort: 8083
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-lb
+  namespace: default
+spec:
+  selector:
+    app: traefik
+  type: LoadBalancer
+  loadBalancerIP: 10.69.4.128
+  ports:
+    - protocol: TCP
+      port: 443
+      name: https
+      targetPort: https
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`traefik.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService
+  tls:
+    certResolver: cloudflare

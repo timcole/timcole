@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jack-sa
+  namespace: kube-system
+secrets:
+  - name: jack-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jack-secret
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: jack-sa
+type: kubernetes.io/service-account-token
