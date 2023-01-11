@@ -17,7 +17,6 @@ spec:
       labels:
         app: wyze
     spec:
-      hostNetwork: true
       containers:
         - name: wyze
           image: ghcr.io/mrlt8/docker-wyze-bridge:1.10.1
