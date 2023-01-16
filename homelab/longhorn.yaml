@@ -1,0 +1,25 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: r2-creds
+  namespace: longhorn-system
+spec:
+  itemPath: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/xa3nnnji7k5zunjzah3hmc7bze"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn-ui
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`longhorn.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: longhorn-frontend
+          namespace: longhorn-system
+          port: 80
+  tls:
+    certResolver: cloudflare
