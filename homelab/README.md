@@ -10,18 +10,18 @@ My homelab does keep remote backups from said datacenter and can be used as fall
 
 ```
 RU42 ---- SuperMicro SYS-5015A-EHF (D510/4GB)      | RouterOS v7 x86   
-RU41 ---- Dell PowerConnect 2848  
-RU40 ---- FS Patch Panel  
-RU39 ---- EdgeCore 5610-52X-OC-AC-F                | Open Network Linux
+RU41 ---- FS Patch Panel  
+RU40 ---- Dell PowerConnect 2848  
+RU39 ---- FS Patch Panel  
 RU38/32 - Dell E2016HV + 8 Port KVM  
 RU31/24 - Panel Blanks  
 RU23 ---- Supermicro 2x Xeon E5-2667v2 / 128GB     | Proxmox  
 RU22 ---- Supermicro 2x Xeon E5-2667v2 / 128GB     | Proxmox  
 RU21 ---- Supermicro 2x Xeon E5-2667v2 / 128GB     | Proxmox  
 RU20/8 -- Panel Blanks  
-RU7 ----- SuperMicro SYS-5015A-EHF (D525/4GB)      | Debian  
+RU7 ----- SuperMicro SYS-5015A-EHF (D525/4GB)      | Debian / NUT Server  
 RU5/6 --- Tripp Lite UPS Smart LCD 1500VA  
-RU1/4 --- APC Smart-UPS X 2000VA (not in use, needs battery replacement)  
+RU1/4 --- APC Smart-UPS X 2000VA  
 ```
 ---
 

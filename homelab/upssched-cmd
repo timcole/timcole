@@ -1,0 +1,53 @@
+#!/bin/sh
+PROXAUTH=""
+
+sendNotification() {
+        curl -X POST -H 'Content-Type: application/json' -d "{\"chat_id\":\"\",\"text\":\"$1\"}" \
+                https://api.telegram.org/bot/sendMessage
+}
+
+sendProxShutDown() {
+        curl -X POST -H "Authorization: PVEAPIToken=$PROXAUTH" \
+                https://$1.modest.so:8006/api2/json/nodes/$1/status?command=shutdown
+}
+
+UPSNAME=$UPSNAME
+case $UPSNAME in
+        "apc") UPSNAME="APC" ;;
+        "tripplite") UPSNAME="TrippLite" ;;
+esac
+
+case $1 in
+        notify_onbatt)
+                sendNotification "🔋 $UPSNAME UPS on battery power"
+                ;;
+        notify_low_batt)
+                sendNotification "🪫 $UPSNAME UPS obattery low"
+                ;;
+        notify_replace_batt)
+                sendNotification "⚠️ $UPSNAME needs a new battery"
+                ;;
+        notify_online)
+                sendNotification "🔌 $UPSNAME UPS on line power"
+                ;;
+        send_shutdown)
+                case $UPSNAME in
+                        "APC")
+                                sendNotification "$UPSNAME UPS has been on battery for too long, sending shutdown commands to Proxmox"
+                                sendProxShutDown ceres
+                                sendProxShutDown haumea
+                                sendProxShutDown pluto
+                                ;;
+                esac
+                ;;
+        send_wakeonlan)
+                case $UPSNAME in
+                        "APC")
+                                wakeonlan 0C:C4:7A:6F:04:00 # Ceres
+                                wakeonlan 0C:C4:7A:6F:07:08 # Haumea
+                                wakeonlan 0C:C4:7A:6E:B1:7A # Pluto
+                                ;;
+                esac
+                ;;
+esac
+

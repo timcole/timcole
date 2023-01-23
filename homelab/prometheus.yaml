@@ -85,6 +85,18 @@ data:
             - 10.69.2.3
           labels:
             __param_module: 'default'
+    - job_name: nut-tripplite
+      metrics_path: /ups_metrics
+      static_configs:
+        - targets: ['nut:9199']
+      params:
+        ups: [ "tripplite" ]
+    - job_name: nut-apc
+      metrics_path: /ups_metrics
+      static_configs:
+        - targets: ['nut:9199']
+      params:
+        ups: [ "apc" ]
 ---
 apiVersion: apps/v1
 kind: Deployment

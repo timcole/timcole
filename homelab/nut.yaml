@@ -11,10 +11,6 @@ spec:
   template:
     metadata:
       name: nut
-      annotations:
-        prometheus.io/port: "9199"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/ups_metrics"
       labels:
         app: nut
     spec:
@@ -29,3 +25,16 @@ spec:
             requests:
               cpu: 200m
               memory: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nut
+  namespace: default
+spec:
+  ports:
+    - port: 9199
+      protocol: TCP
+      targetPort: 9199
+  selector:
+    app: nut
