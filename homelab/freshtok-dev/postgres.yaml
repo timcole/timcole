@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:14
+          image: postgres:15
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
@@ -24,9 +24,12 @@ spec:
               value: postgres
             - name: POSTGRES_PASSWORD
               value: postgres
+            # - name: PGDATA
+            #   value: /opt/postgresql/data/
           volumeMounts:
-            - mountPath: /var/lib/postgresql
+            - mountPath: /var/lib/postgresql/data
               name: postgres-data
+              subPath: data
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
