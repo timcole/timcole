@@ -85,6 +85,12 @@ data:
             - 10.69.2.3
           labels:
             __param_module: 'default'
+        - targets: [10.69.2.4]
+          labels:
+            __param_module: 'no_dcmi'
+        - targets: [10.69.2.5]
+          labels:
+            __param_module: 'dell'
     - job_name: nut-tripplite
       metrics_path: /ups_metrics
       static_configs:
