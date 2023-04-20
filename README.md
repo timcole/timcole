@@ -3,7 +3,7 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/ModestTim?color=00acee&label=@ModestTim&logo=twitter&logoColor=fff&style=flat-square)](https://twitter.com/modesttim)
 [![Discord Server](https://img.shields.io/discord/313591755180081153?color=5865F2&label=Modest%20Labs%20Discord&logo=discord&logoColor=fff&style=flat-square)](https://discord.gg/modest)
 
-A 25 year old, self-taught, software engineer from Raleigh, NC.
+A 26 year old, self-taught, software engineer from Raleigh, NC.
 
 I prefer to write **back-end** code _(Rust, TypeScript, Go)_, but do front-end as needed _(React/NextJS TypeScript)_.  
 **NeoVim** is my editor of choice. [dotfiles](https://github.com/TimothyCole/dotfiles)
