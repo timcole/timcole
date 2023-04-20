@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idek
+  namespace: default
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/2ioju3xdp6nbfv7gdoxemm3tdu"
+    operator.1password.io/item-name: "idek"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idek
+  template:
+    metadata:
+      labels:
+        app: idek
+    spec:
+      imagePullSecrets:
+        - name: ghcr
+      containers:
+        - name: idek
+          image: ghcr.io/timcole/idek:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1000m"
+          envFrom:
+            - secretRef:
+                name: idek

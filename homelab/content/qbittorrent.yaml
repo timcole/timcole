@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      name: qbittorrent
+      labels:
+        app: qbittorrent
+    spec:
+      containers:
+        - name: qbittorrent
+          image: cr.hotio.dev/hotio/qbittorrent:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
+            - name: media-downloads
+              mountPath: /downloads
+      volumes:
+        - name: media-downloads
+          persistentVolumeClaim:
+            claimName: media-downloads
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: content
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: qbittorrent
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: qbittorrent
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`qbittorrent.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: qbittorrent
+          namespace: content
+          port: 8080
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qbittorrent-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

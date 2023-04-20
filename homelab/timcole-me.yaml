@@ -22,7 +22,7 @@ spec:
           resources:
             requests:
               memory: "256Mi"
-              cpu: "150m"
+              cpu: "50m"
           env:
             - name: BOOSTER_HOST
               value: https://booster.spaceflight.live

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      name: radarr
+      labels:
+        app: radarr
+    spec:
+      containers:
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          ports:
+            - containerPort: 7878
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: radarr-config
+              mountPath: /config
+            - name: media-storage
+              mountPath: /movies
+              subPath: movies
+            - name: media-downloads
+              mountPath: /downloads
+      volumes:
+        - name: media-downloads
+          persistentVolumeClaim:
+            claimName: media-downloads
+        - name: media-storage
+          persistentVolumeClaim:
+            claimName: media-storage
+        - name: radarr-config
+          persistentVolumeClaim:
+            claimName: radarr-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: content
+spec:
+  ports:
+    - port: 7878
+      protocol: TCP
+      targetPort: 7878
+  selector:
+    app: radarr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radarr
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`radarr.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: radarr
+          namespace: content
+          port: 7878
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radarr-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

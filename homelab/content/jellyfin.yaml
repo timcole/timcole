@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      name: jellyfin
+      labels:
+        app: jellyfin
+    spec:
+      containers:
+        - name: jellyfin
+          image: jellyfin/jellyfin
+          ports:
+            - containerPort: 8096
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: jellyfin-config
+              mountPath: /config
+            - name: media-storage
+              mountPath: /media
+      volumes:
+        - name: media-storage
+          persistentVolumeClaim:
+            claimName: media-storage
+        - name: jellyfin-config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: content
+spec:
+  ports:
+    - port: 8096
+      protocol: TCP
+      targetPort: 8096
+  selector:
+    app: jellyfin
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`jellyfin.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: jellyfin
+          namespace: content
+          port: 8096
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

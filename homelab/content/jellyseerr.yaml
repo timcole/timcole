@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyseerr
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyseerr
+  template:
+    metadata:
+      name: jellyseerr
+      labels:
+        app: jellyseerr
+    spec:
+      containers:
+        - name: jellyseerr
+          image: fallenbagel/jellyseerr
+          ports:
+            - containerPort: 5055
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: jellyseerr-config
+              mountPath: /app/config
+      volumes:
+        - name: jellyseerr-config
+          persistentVolumeClaim:
+            claimName: jellyseerr-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyseerr
+  namespace: content
+spec:
+  ports:
+    - port: 5055
+      protocol: TCP
+      targetPort: 5055
+  selector:
+    app: jellyseerr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`jellyseerr.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: jellyseerr
+          namespace: content
+          port: 5055
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyseerr-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

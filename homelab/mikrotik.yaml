@@ -35,8 +35,8 @@ spec:
               name: mikrotik-conf
           resources:
             requests:
-              cpu: 200m
-              memory: 500Mi
+              cpu: 5m
+              memory: 50Mi
       volumes:
         - name: mikrotik-conf
           secret:

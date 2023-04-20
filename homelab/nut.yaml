@@ -23,8 +23,8 @@ spec:
               value: upsmanager
           resources:
             requests:
-              cpu: 200m
-              memory: 500Mi
+              cpu: 10m
+              memory: 50Mi
 ---
 apiVersion: v1
 kind: Service

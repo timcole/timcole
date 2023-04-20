@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sabnzbd
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sabnzbd
+  template:
+    metadata:
+      name: sabnzbd
+      labels:
+        app: sabnzbd
+    spec:
+      containers:
+        - name: sabnzbd
+          image: lscr.io/linuxserver/sabnzbd:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: sabnzbd-config
+              mountPath: /config
+            - name: media-incomplete
+              mountPath: /incomplete-downloads
+            - name: media-downloads
+              mountPath: /downloads
+      volumes:
+        - name: media-downloads
+          persistentVolumeClaim:
+            claimName: media-downloads
+        - name: media-incomplete
+          persistentVolumeClaim:
+            claimName: media-incomplete
+        - name: sabnzbd-config
+          persistentVolumeClaim:
+            claimName: sabnzbd-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sabnzbd
+  namespace: content
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: sabnzbd
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sabnzbd
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`sabnzbd.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: sabnzbd
+          namespace: content
+          port: 8080
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sabnzbd-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-incomplete
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: truenas
+  resources:
+    requests:
+      storage: 250Gi
+

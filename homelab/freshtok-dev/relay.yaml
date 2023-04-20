@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: tiktok-relay
+      annotations:
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
     spec:
       imagePullSecrets:
         - name: ghcr
@@ -21,8 +25,8 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "150m"
+              memory: "25Mi"
+              cpu: "10m"
           ports:
             - containerPort: 8080
 ---

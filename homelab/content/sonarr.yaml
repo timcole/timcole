@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      name: sonarr
+      labels:
+        app: sonarr
+    spec:
+      containers:
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          ports:
+            - containerPort: 8989
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 500M
+          volumeMounts:
+            - name: sonarr-config
+              mountPath: /config
+            - name: media-storage
+              mountPath: /tv
+              subPath: tv
+            - name: media-downloads
+              mountPath: /downloads
+      volumes:
+        - name: media-downloads
+          persistentVolumeClaim:
+            claimName: media-downloads
+        - name: media-storage
+          persistentVolumeClaim:
+            claimName: media-storage
+        - name: sonarr-config
+          persistentVolumeClaim:
+            claimName: sonarr-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  namespace: content
+spec:
+  ports:
+    - port: 8989
+      protocol: TCP
+      targetPort: 8989
+  selector:
+    app: sonarr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`sonarr.local.tim.rip`)
+      kind: Rule
+      services:
+        - name: sonarr
+          namespace: content
+          port: 8989
+  tls:
+    certResolver: cloudflare
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-config
+  namespace: content
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
