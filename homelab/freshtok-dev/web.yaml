@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: freshtok-dev
+  annotations:
+    operator.1password.io/item-path: "vaults/zure3rmgzv3e3dqmtg3uex5qby/items/goa46ph4kdyrxcxek36iana4m4"
+    operator.1password.io/item-name: "freshtok"
+    operator.1password.io/auto-restart: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      imagePullSecrets:
+        - name: ghcr
+      containers:
+        - name: web
+          image: ghcr.io/modestlabs/freshtok.bot:v2
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          env:
+            - name: NODE_ENV
+              value: staging
+          envFrom:
+            - secretRef:
+                name: freshtok
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: freshtok-dev
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: web
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: freshtok-staging
+  namespace: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`staging.freshtok.bot`)
+      kind: Rule
+      services:
+        - name: web
+          namespace: freshtok-dev
+          port: 3000
+  tls:
+    certResolver: cloudflare
