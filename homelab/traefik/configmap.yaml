@@ -56,6 +56,8 @@ data:
             - "104.24.0.0/14"
             - "172.64.0.0/13"
             - "131.0.72.0/22"
+            - "192.168.0.0/16"
+            - "10.0.0.0/8"
         http:
           middlewares:
             - default-compression@kubernetescrd

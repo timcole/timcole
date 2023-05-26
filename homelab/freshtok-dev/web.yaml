@@ -27,8 +27,15 @@ spec:
             requests:
               memory: "256Mi"
               cpu: "250m"
+          readinessProbe:
+            httpGet:
+              path: /api/ping
+              port: 3000
+            successThreshold: 3
           env:
             - name: NODE_ENV
+              value: production
+            - name: APP_ENV
               value: staging
           envFrom:
             - secretRef:
