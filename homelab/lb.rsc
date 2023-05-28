@@ -1,29 +1,30 @@
-/system/script add name=KubeAPILB source={
-  :local node [/ip/dns/static/get [/ip/dns/static/find name~"kube-" address=$host] name];
+:foreach i in=[/ip/dns/static/find name~"kube-"] do={
+  :local name [/ip/dns/static/get $i name];
+  :local host [/ip/dns/static/get $i address];
+  :local enabled [:len [/ip/dns/static/find name="kube" address=$host disabled=no]];
 
-  :if ($status="up") do={
+  :local enable do={
+    :log info "$name - Enabling";
     /ip/dns/static/enable [find name=kube address=$host]
     /ip/firewall/nat/enable [/ip/firewall/nat/find to-addresses=$host comment="KubeAPI"]
-  } else={
+    /tool/e-mail/send to=tim@tim.rip subject="$name ($host) is ready" body="Enabled NAT and DNS"
+  }
+
+  :local disable do={
+    :log info "$name - Disabling";
     /ip/dns/static/disable [find name=kube address=$host]
     /ip/firewall/nat/disable [/ip/firewall/nat/find to-addresses=$host comment="KubeAPI"]
-  }
-} dont-require-permissions=yes policy=read,write,test
-
-:foreach i in=[/ip/dns/static/find name~"kube-"] do={
-  :local addr [/ip/dns/static/get $i address];
-
-  :if ([/ip/dns/static/find address=$addr name=kube]="") do={
-    /ip/dns/static/add address=$addr name=kube ttl=00:00:01
+    /tool/e-mail/send to=tim@tim.rip subject="$name ($host) is $reason" body="Disabled NAT and DNS"
   }
 
-  :if ([/ip/firewall/nat/find to-addresses=$addr comment="KubeAPI"]="") do={
-    /ip/firewall/nat/add chain=dstnat action=dst-nat to-addresses=$addr dst-address=10.69.4.254 \
-      comment="KubeAPI"
-  }
-
-  :if ([/tool/netwatch find host=$addr comment="KubeAPI"]="") do={
-    /tool/netwatch/add host=$addr type=http-get timeout=20 comment="KubeAPI" \
-      interval=5 down-script=KubeAPILB up-script=KubeAPILB port=6443 http-codes=400
-  }
+  :do {
+    :local ready [/tool/fetch url="https://$host:6443/readyz" as-value output=user]
+    :if ($ready->"status" = "finished") do={
+      :if ($ready->"data" != "ok") do={
+        :if ($enabled = "1") do={ $disable name=$name host=$host reason="not ready" }
+      } else={
+        :if ($enabled = "0") do={ $enable name=$name host=$host }
+      }
+    }
+  } on-error={ :if ($enabled = "1") do={ $disable name=$name host=$host reason="readyz request failed" } }
 }
