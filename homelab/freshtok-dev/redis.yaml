@@ -15,11 +15,18 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:latest
+          image: eqalpha/keydb:latest
           imagePullPolicy: "IfNotPresent"
+          command: ["keydb-server"]
           ports:
             - containerPort: 6379
-          command: ["redis-server"]
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -35,3 +42,16 @@ spec:
     - port: 6379
   selector:
     app: redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: freshtok-dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 512Mi

@@ -17,7 +17,7 @@
     /tool/e-mail/send to=tim@tim.rip subject="$name ($host) is $reason" body="Disabled NAT and DNS"
   }
 
-  :do {
+  :retry command={
     :local ready [/tool/fetch url="https://$host:6443/readyz" as-value output=user]
     :if ($ready->"status" = "finished") do={
       :if ($ready->"data" != "ok") do={
@@ -26,5 +26,5 @@
         :if ($enabled = "0") do={ $enable name=$name host=$host }
       }
     }
-  } on-error={ :if ($enabled = "1") do={ $disable name=$name host=$host reason="readyz request failed" } }
+  } delay=1 max=2 on-error={ :if ($enabled = "1") do={ $disable name=$name host=$host reason="readyz request failed" } }
 }
