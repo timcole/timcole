@@ -17,6 +17,9 @@ spec:
       containers:
         - name: sonarr
           image: lscr.io/linuxserver/sonarr:latest
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: true
           ports:
             - containerPort: 8989
           resources:
