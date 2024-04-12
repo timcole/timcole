@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: radarr
-  namespace: content
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -17,6 +17,8 @@ spec:
       containers:
         - name: radarr
           image: lscr.io/linuxserver/radarr:latest
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 7878
           resources:
@@ -33,20 +35,23 @@ spec:
               mountPath: /downloads
       volumes:
         - name: media-downloads
-          persistentVolumeClaim:
-            claimName: media-downloads
+          hostPath:
+            path: /var/mnt/storage/downloads
+            type: DirectoryOrCreate
         - name: media-storage
-          persistentVolumeClaim:
-            claimName: media-storage
+          nfs:
+            server: 10.69.1.5
+            path: /mnt/NAS/nfs/vols/pvc-f6f7ffc5-2dc6-42a1-8b91-5109febbe768
         - name: radarr-config
-          persistentVolumeClaim:
-            claimName: radarr-config
+          hostPath:
+            path: /var/configs/radarr
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: radarr
-  namespace: content
+  namespace: default
 spec:
   ports:
     - port: 7878
@@ -62,26 +67,10 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - https
+    - websecure
   routes:
     - match: Host(`radarr.local.tim.rip`)
       kind: Rule
       services:
         - name: radarr
-          namespace: content
           port: 7878
-  tls:
-    certResolver: cloudflare
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: radarr-config
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 5Gi

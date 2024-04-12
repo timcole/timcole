@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sabnzbd
-  namespace: content
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -17,6 +17,8 @@ spec:
       containers:
         - name: sabnzbd
           image: lscr.io/linuxserver/sabnzbd:latest
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 8080
           resources:
@@ -32,20 +34,22 @@ spec:
               mountPath: /downloads
       volumes:
         - name: media-downloads
-          persistentVolumeClaim:
-            claimName: media-downloads
+          hostPath:
+            path: /var/mnt/storage/downloads
+            type: DirectoryOrCreate
         - name: media-incomplete
-          persistentVolumeClaim:
-            claimName: media-incomplete
+          emptyDir:
+            sizeLimit: 250Gi
         - name: sabnzbd-config
-          persistentVolumeClaim:
-            claimName: sabnzbd-config
+          hostPath:
+            path: /var/configs/sabnzbd
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: sabnzbd
-  namespace: content
+  namespace: default
 spec:
   ports:
     - port: 8080
@@ -61,40 +65,10 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - https
+    - websecure
   routes:
     - match: Host(`sabnzbd.local.tim.rip`)
       kind: Rule
       services:
         - name: sabnzbd
-          namespace: content
           port: 8080
-  tls:
-    certResolver: cloudflare
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: sabnzbd-config
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 5Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: media-incomplete
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: truenas
-  resources:
-    requests:
-      storage: 250Gi
-

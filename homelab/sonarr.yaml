@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sonarr
-  namespace: content
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -18,8 +18,7 @@ spec:
         - name: sonarr
           image: lscr.io/linuxserver/sonarr:latest
           securityContext:
-            runAsUser: 0
-            allowPrivilegeEscalation: true
+            privileged: true
           ports:
             - containerPort: 8989
           resources:
@@ -36,20 +35,23 @@ spec:
               mountPath: /downloads
       volumes:
         - name: media-downloads
-          persistentVolumeClaim:
-            claimName: media-downloads
+          hostPath:
+            path: /var/mnt/storage/downloads
+            type: DirectoryOrCreate
         - name: media-storage
-          persistentVolumeClaim:
-            claimName: media-storage
+          nfs:
+            server: 10.69.1.5
+            path: /mnt/NAS/nfs/vols/pvc-f6f7ffc5-2dc6-42a1-8b91-5109febbe768
         - name: sonarr-config
-          persistentVolumeClaim:
-            claimName: sonarr-config
+          hostPath:
+            path: /var/configs/sonarr
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: sonarr
-  namespace: content
+  namespace: default
 spec:
   ports:
     - port: 8989
@@ -65,26 +67,10 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - https
+    - websecure
   routes:
     - match: Host(`sonarr.local.tim.rip`)
       kind: Rule
       services:
         - name: sonarr
-          namespace: content
           port: 8989
-  tls:
-    certResolver: cloudflare
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: sonarr-config
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 5Gi

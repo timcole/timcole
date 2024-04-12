@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jellyfin
-  namespace: content
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -17,6 +17,8 @@ spec:
       containers:
         - name: jellyfin
           image: jellyfin/jellyfin
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 8096
           resources:
@@ -30,17 +32,19 @@ spec:
               mountPath: /media
       volumes:
         - name: media-storage
-          persistentVolumeClaim:
-            claimName: media-storage
+          nfs:
+            server: 10.69.1.5
+            path: /mnt/NAS/nfs/vols/pvc-f6f7ffc5-2dc6-42a1-8b91-5109febbe768
         - name: jellyfin-config
-          persistentVolumeClaim:
-            claimName: jellyfin-config
+          hostPath:
+            path: /var/configs/jellyfin
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: jellyfin
-  namespace: content
+  namespace: default
 spec:
   ports:
     - port: 8096
@@ -56,26 +60,10 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - https
+    - websecure
   routes:
     - match: Host(`jellyfin.local.tim.rip`)
       kind: Rule
       services:
         - name: jellyfin
-          namespace: content
           port: 8096
-  tls:
-    certResolver: cloudflare
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jellyfin-config
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 5Gi

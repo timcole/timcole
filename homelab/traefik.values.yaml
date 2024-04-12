@@ -1,0 +1,69 @@
+deployment:
+  enabled: true
+  kind: Deployment
+  replicas: 1
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+ports:
+  web:
+    redirectTo:
+      port: websecure
+  websecure:
+    tls:
+      enabled: true
+      certResolver: "cloudflare"
+ingressRoute:
+  dashboard:
+    enabled: false
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    allowEmptyServices: true
+    allowExternalNameServices: true
+  kubernetesIngress:
+    enabled: true
+    publishedService:
+      enabled: false
+podSecurityContext:
+  runAsGroup: 0
+  runAsUser: 0
+  runAsNonRoot: false
+securityContext:
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: true
+envFrom:
+  - secretRef:
+      name: cloudflare-api
+certResolvers:
+  cloudflare:
+    email: "tim@timcole.me"
+    dnsChallenge:
+      provider: cloudflare
+      resolvers:
+        - "1.1.1.1:53"
+        - "8.8.8.8:53"
+logs:
+  general:
+    level: WARN
+  access:
+    enabled: true
+service:
+  enabled: true
+  single: true
+  type: ClusterIP
+  externalIPs:
+    - 10.69.1.3
+autoscaling:
+  enabled: false
+rbac:
+  enabled: true
+  namespaced: false
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "2Gi"

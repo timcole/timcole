@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jellyseerr
-  namespace: content
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -17,6 +17,8 @@ spec:
       containers:
         - name: jellyseerr
           image: fallenbagel/jellyseerr
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 5055
           resources:
@@ -28,14 +30,15 @@ spec:
               mountPath: /app/config
       volumes:
         - name: jellyseerr-config
-          persistentVolumeClaim:
-            claimName: jellyseerr-config
+          hostPath:
+            path: /var/configs/jellyseer
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: jellyseerr
-  namespace: content
+  namespace: default
 spec:
   ports:
     - port: 5055
@@ -51,26 +54,10 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - https
+    - websecure
   routes:
     - match: Host(`jellyseerr.local.tim.rip`)
       kind: Rule
       services:
         - name: jellyseerr
-          namespace: content
           port: 5055
-  tls:
-    certResolver: cloudflare
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jellyseerr-config
-  namespace: content
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 5Gi
