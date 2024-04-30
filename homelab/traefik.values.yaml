@@ -1,3 +1,6 @@
+image:
+  repository: traefik/traefik
+  tag: experimental-v3.0
 deployment:
   enabled: true
   kind: Deployment
@@ -10,6 +13,8 @@ ports:
     redirectTo:
       port: websecure
   websecure:
+    http3:
+      enabled: true
     tls:
       enabled: true
       certResolver: "cloudflare"
